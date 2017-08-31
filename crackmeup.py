@@ -59,7 +59,32 @@ def jokesYouDotcom():
 	joke = re.sub(r'</p>|<br/>', r'\n', joke)
 	return joke
 
-whichSite = randint(1,2)
+def randomJokesPointDotcom():
+	randomJokeId = str(randint(1, 1000))
+	#Apprently on their site they have 1000 jokes, but this is not true
+	#there are MANY jokes missing when their random number is selected
+	#so I also implemented a recursive function so that if no joke is
+	#found on the page then it re runs this function with hopefully a
+	#different random number, however I will make a ticket to store the failed
+	#numbers so that in future runs of this function those numbers can be
+	#avoided. That is a TODO
+	urlToRead = "http://www.jokespoint.com/joke.php?id=" + randomJokeId
+	handle = urllib.urlopen(urlToRead)
+	htmlOutput =  handle.read()
+	soupedHtml = BeautifulSoup(htmlOutput, "html.parser")
+	possJokes = soupedHtml.findAll('div', {'class':'joke'})
+	numberOfAvailableJokes = len(possJokes)
+
+	if numberOfAvailableJokes > 0:
+	   joke = soup.findAll('div', {'class':'joke'})[0].findAll('p')[0]
+	   joke = str(joke)
+	   joke = re.sub(r'<p>', r'', joke)
+	   joke = re.sub(r'</p>|<br/>', r'\n', joke)
+	   return joke
+	else:
+	   return randomJokesPointDotcom()
+
+whichSite = randint(1,3)
 if whichSite == 1:
 	print jokesDotCCDotcom()
 	print "\nSource - jokes.cc.com"
@@ -68,6 +93,12 @@ elif whichSite == 2:
 	print jokesYouDotcom()
 	print "\nSource - jokesyou.com"
 
+elif whichSite == 3:
+	print randomJokesPointDotcom()
+	print "\nSource - jokespoint.com"
+
 else:
+	#Also this will currently never get hit the random int
+	#generator only handles 1, 2 and (now) 3? Is there a reason for this?
 	print randomjokesDotcom()
 	print "\nSource - randomjoke.com"
